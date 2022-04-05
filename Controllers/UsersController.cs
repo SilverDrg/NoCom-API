@@ -24,28 +24,6 @@ namespace NoCom_API.Controllers
             _context = context;
         }
 
-        private async Task<string> HashPassword(string password)
-        {
-            return await Task.Run(() =>
-            {
-                var passwordBytes = Encoding.UTF8.GetBytes(password);
-                var argon2 = new Argon2i(passwordBytes);
-                var salt = new byte[16];
-
-                var random = RandomNumberGenerator.Create();
-                random.GetBytes(salt);
-
-                argon2.DegreeOfParallelism = 2;
-                argon2.MemorySize = 512;
-                argon2.Iterations = 4;
-                argon2.Salt = salt;
-
-                var hashedPassword = argon2.GetBytes(112);
-                var combination = salt.Concat(hashedPassword);
-                return Encoding.UTF8.GetString(combination.ToArray());
-            });
-        }
-
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
@@ -67,8 +45,8 @@ namespace NoCom_API.Controllers
             return user;
         }
 
-        // GET: api/Users/username
-        [HttpGet("username/{id:alpha}")]
+        // GET: api/Users/Username
+        [HttpGet("Username/{id:alpha}")]
         public async Task<IActionResult> GetUsername(string id)
         {
             Console.WriteLine("name: {0}", id);
@@ -114,12 +92,12 @@ namespace NoCom_API.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/Users/Register
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [HttpPost("/Register")]
+        public async Task<ActionResult<User>> RegisterUser(User user)
         {
-            user.Password = await HashPassword(user.Password);
+            user.Password = HashPassword(user.Password);
 
             //var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
 
@@ -130,6 +108,51 @@ namespace NoCom_API.Controllers
 
             user.ProfileImage = null;
             user.BannerImage = null;
+
+            Console.WriteLine("Password length: {0}", user.Password.Length);
+
+            Console.WriteLine("user received: {0} \nid: {1} \nusername: {2} \nemail: {3} \npassword: {4} \nimage: {5} \nbanner: {6} \nisadmin: {7}",
+                user, user.Id, user.Username, user.Email, user.Password, user.ProfileImage, user.BannerImage, user.IsAdmin);
+
+
+
+            _context.Users.Add(user);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (UserExists(user.Id))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            //return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return new EmptyResult();
+        }
+
+        // POST: api/Users/Login
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("/Login")]
+        public async Task<ActionResult<User>> LoginUser(User user)
+        {
+            var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
+
+            if (existingUser == null)
+            {
+                return StatusCode(400, "Username doesn't exists.");
+            }
+
+            if (!MatchingPasswords(existingUser.Password, user.Password))
+            {
+                return StatusCode(400, "Incorrect password");
+            }
 
             Console.WriteLine("Password length: {0}", user.Password.Length);
 
@@ -178,6 +201,70 @@ namespace NoCom_API.Controllers
         private bool UserExists(long id)
         {
             return _context.Users.Any(e => e.Id == id);
+        }
+
+        private bool UsernameExists(string username)
+        {
+            return _context.Users.Any(e => e.Username == username);
+        }
+
+        //private async Task<string> HashPassword(string password)
+        //{
+        //    return await Task.Run(() =>
+        //    {
+        //        var passwordBytes = Encoding.UTF8.GetBytes(password);
+        //        var argon2 = new Argon2i(passwordBytes);
+        //        var salt = new byte[16];
+
+        //        var random = RandomNumberGenerator.Create();
+        //        random.GetBytes(salt);
+
+        //        argon2.DegreeOfParallelism = 2;
+        //        argon2.MemorySize = 512;
+        //        argon2.Iterations = 4;
+        //        argon2.Salt = salt;
+
+        //        var hashedPassword = argon2.GetBytes(112);
+        //        var combination = salt.Concat(hashedPassword);
+        //        return Encoding.UTF8.GetString(combination.ToArray());
+        //    });
+        //}
+
+        private string HashPassword(string password)
+        {
+            var passwordBytes = Encoding.UTF8.GetBytes(password);
+            var argon2 = new Argon2i(passwordBytes);
+            var salt = new byte[16];
+
+            var random = RandomNumberGenerator.Create();
+            random.GetBytes(salt);
+
+            argon2.DegreeOfParallelism = 2;
+            argon2.MemorySize = 512;
+            argon2.Iterations = 4;
+            argon2.Salt = salt;
+
+            var hashedPassword = argon2.GetBytes(112);
+            var combination = salt.Concat(hashedPassword);
+            return Encoding.UTF8.GetString(combination.ToArray());
+        }
+
+        private bool MatchingPasswords(string storedPassword, string providedPassword)
+        {
+            var storedPasswordBytes = Encoding.UTF8.GetBytes(storedPassword);
+            var providedPasswordBytes = Encoding.UTF8.GetBytes(providedPassword);
+            var argon2 = new Argon2i(providedPasswordBytes);
+            var salt = storedPasswordBytes.Take(16).ToArray();
+
+            argon2.DegreeOfParallelism = 2;
+            argon2.MemorySize = 512;
+            argon2.Iterations = 4;
+            argon2.Salt = salt;
+
+            var hashedProvidedPassword = argon2.GetBytes(112);
+            var encodedPassword = salt.Concat(hashedProvidedPassword);
+
+            return storedPassword.Equals(Encoding.UTF8.GetString(encodedPassword.ToArray()));
         }
     }
 }

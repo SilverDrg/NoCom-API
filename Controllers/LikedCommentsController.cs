@@ -30,7 +30,7 @@ namespace NoCom_API.Controllers
 
         // GET: api/LikedComments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<LikedComment>> GetLikedComment(int id)
+        public async Task<ActionResult<LikedComment>> GetLikedComment(long id)
         {
             var likedComment = await _context.LikedComments.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace NoCom_API.Controllers
         // PUT: api/LikedComments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLikedComment(int id, LikedComment likedComment)
+        public async Task<IActionResult> PutLikedComment(long id, LikedComment likedComment)
         {
             if (id != likedComment.Id)
             {
@@ -100,7 +100,7 @@ namespace NoCom_API.Controllers
 
         // DELETE: api/LikedComments/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLikedComment(int id)
+        public async Task<IActionResult> DeleteLikedComment(long id)
         {
             var likedComment = await _context.LikedComments.FindAsync(id);
             if (likedComment == null)
@@ -114,7 +114,7 @@ namespace NoCom_API.Controllers
             return NoContent();
         }
 
-        private bool LikedCommentExists(int id)
+        private bool LikedCommentExists(long id)
         {
             return _context.LikedComments.Any(e => e.Id == id);
         }

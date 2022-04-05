@@ -12,47 +12,47 @@ namespace NoCom_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventLogsController : ControllerBase
+    public class RolesController : ControllerBase
     {
         private readonly CoreDbContext _context;
 
-        public EventLogsController(CoreDbContext context)
+        public RolesController(CoreDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/EventLogs
+        // GET: api/Roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventLog>>> GetEventLogs()
+        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
-            return await _context.EventLogs.ToListAsync();
+            return await _context.Roles.ToListAsync();
         }
 
-        // GET: api/EventLogs/5
+        // GET: api/Roles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EventLog>> GetEventLog(long id)
+        public async Task<ActionResult<Role>> GetRole(long id)
         {
-            var eventLog = await _context.EventLogs.FindAsync(id);
+            var role = await _context.Roles.FindAsync(id);
 
-            if (eventLog == null)
+            if (role == null)
             {
                 return NotFound();
             }
 
-            return eventLog;
+            return role;
         }
 
-        // PUT: api/EventLogs/5
+        // PUT: api/Roles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEventLog(long id, EventLog eventLog)
+        public async Task<IActionResult> PutRole(long id, Role role)
         {
-            if (id != eventLog.Id)
+            if (id != role.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(eventLog).State = EntityState.Modified;
+            _context.Entry(role).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace NoCom_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EventLogExists(id))
+                if (!RoleExists(id))
                 {
                     return NotFound();
                 }
@@ -73,19 +73,19 @@ namespace NoCom_API.Controllers
             return NoContent();
         }
 
-        // POST: api/EventLogs
+        // POST: api/Roles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<EventLog>> PostEventLog(EventLog eventLog)
+        public async Task<ActionResult<Role>> PostRole(Role role)
         {
-            _context.EventLogs.Add(eventLog);
+            _context.Roles.Add(role);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (EventLogExists(eventLog.Id))
+                if (RoleExists(role.Id))
                 {
                     return Conflict();
                 }
@@ -95,28 +95,28 @@ namespace NoCom_API.Controllers
                 }
             }
 
-            return CreatedAtAction("GetEventLog", new { id = eventLog.Id }, eventLog);
+            return CreatedAtAction("GetRole", new { id = role.Id }, role);
         }
 
-        // DELETE: api/EventLogs/5
+        // DELETE: api/Roles/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEventLog(long id)
+        public async Task<IActionResult> DeleteRole(long id)
         {
-            var eventLog = await _context.EventLogs.FindAsync(id);
-            if (eventLog == null)
+            var role = await _context.Roles.FindAsync(id);
+            if (role == null)
             {
                 return NotFound();
             }
 
-            _context.EventLogs.Remove(eventLog);
+            _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool EventLogExists(long id)
+        private bool RoleExists(long id)
         {
-            return _context.EventLogs.Any(e => e.Id == id);
+            return _context.Roles.Any(e => e.Id == id);
         }
     }
 }

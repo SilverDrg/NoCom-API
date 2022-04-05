@@ -14,13 +14,13 @@ namespace NoCom_API.Models
             LikedComments = new HashSet<LikedComment>();
         }
 
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public int WebsiteId { get; set; }
+        public long Id { get; set; }
+        public long UserId { get; set; }
+        public long WebsiteId { get; set; }
         public string Comment1 { get; set; } = null!;
-        public int Likes { get; set; }
+        public long Likes { get; set; }
         public bool Nsfw { get; set; }
-        public int? ReplyTo { get; set; }
+        public long? ReplyTo { get; set; }
 
         public virtual Comment? ReplyToNavigation { get; set; }
         public virtual User User { get; set; } = null!;

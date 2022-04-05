@@ -30,7 +30,7 @@ namespace NoCom_API.Controllers
 
         // GET: api/Websites/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Website>> GetWebsite(int id)
+        public async Task<ActionResult<Website>> GetWebsite(long id)
         {
             var website = await _context.Websites.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace NoCom_API.Controllers
         // PUT: api/Websites/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutWebsite(int id, Website website)
+        public async Task<IActionResult> PutWebsite(long id, Website website)
         {
             if (id != website.Id)
             {
@@ -100,7 +100,7 @@ namespace NoCom_API.Controllers
 
         // DELETE: api/Websites/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteWebsite(int id)
+        public async Task<IActionResult> DeleteWebsite(long id)
         {
             var website = await _context.Websites.FindAsync(id);
             if (website == null)
@@ -114,7 +114,7 @@ namespace NoCom_API.Controllers
             return NoContent();
         }
 
-        private bool WebsiteExists(int id)
+        private bool WebsiteExists(long id)
         {
             return _context.Websites.Any(e => e.Id == id);
         }

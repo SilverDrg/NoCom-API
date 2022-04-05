@@ -13,9 +13,10 @@ namespace NoCom_API.Models
             Comments = new HashSet<Comment>();
             EventLogs = new HashSet<EventLog>();
             LikedComments = new HashSet<LikedComment>();
+            UsersRoles = new HashSet<UsersRole>();
         }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Username { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
@@ -23,8 +24,10 @@ namespace NoCom_API.Models
         public byte[]? BannerImage { get; set; }
         public bool IsAdmin { get; set; }
 
+        public virtual Session IdNavigation { get; set; } = null!;
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<EventLog> EventLogs { get; set; }
         public virtual ICollection<LikedComment> LikedComments { get; set; }
+        public virtual ICollection<UsersRole> UsersRoles { get; set; }
     }
 }

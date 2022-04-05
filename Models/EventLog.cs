@@ -8,8 +8,8 @@ namespace NoCom_API.Models
     /// </summary>
     public partial class EventLog
     {
-        public int Id { get; set; }
-        public int UserId { get; set; }
+        public long Id { get; set; }
+        public long UserId { get; set; }
         public TimeOnly EventTime { get; set; }
         public string Event { get; set; } = null!;
 

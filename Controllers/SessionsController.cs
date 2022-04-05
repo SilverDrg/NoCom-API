@@ -12,47 +12,47 @@ namespace NoCom_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventLogsController : ControllerBase
+    public class SessionsController : ControllerBase
     {
         private readonly CoreDbContext _context;
 
-        public EventLogsController(CoreDbContext context)
+        public SessionsController(CoreDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/EventLogs
+        // GET: api/Sessions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventLog>>> GetEventLogs()
+        public async Task<ActionResult<IEnumerable<Session>>> GetSessions()
         {
-            return await _context.EventLogs.ToListAsync();
+            return await _context.Sessions.ToListAsync();
         }
 
-        // GET: api/EventLogs/5
+        // GET: api/Sessions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EventLog>> GetEventLog(long id)
+        public async Task<ActionResult<Session>> GetSession(long id)
         {
-            var eventLog = await _context.EventLogs.FindAsync(id);
+            var session = await _context.Sessions.FindAsync(id);
 
-            if (eventLog == null)
+            if (session == null)
             {
                 return NotFound();
             }
 
-            return eventLog;
+            return session;
         }
 
-        // PUT: api/EventLogs/5
+        // PUT: api/Sessions/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEventLog(long id, EventLog eventLog)
+        public async Task<IActionResult> PutSession(long id, Session session)
         {
-            if (id != eventLog.Id)
+            if (id != session.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(eventLog).State = EntityState.Modified;
+            _context.Entry(session).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace NoCom_API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EventLogExists(id))
+                if (!SessionExists(id))
                 {
                     return NotFound();
                 }
@@ -73,19 +73,19 @@ namespace NoCom_API.Controllers
             return NoContent();
         }
 
-        // POST: api/EventLogs
+        // POST: api/Sessions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<EventLog>> PostEventLog(EventLog eventLog)
+        public async Task<ActionResult<Session>> PostSession(Session session)
         {
-            _context.EventLogs.Add(eventLog);
+            _context.Sessions.Add(session);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (EventLogExists(eventLog.Id))
+                if (SessionExists(session.Id))
                 {
                     return Conflict();
                 }
@@ -95,28 +95,28 @@ namespace NoCom_API.Controllers
                 }
             }
 
-            return CreatedAtAction("GetEventLog", new { id = eventLog.Id }, eventLog);
+            return CreatedAtAction("GetSession", new { id = session.Id }, session);
         }
 
-        // DELETE: api/EventLogs/5
+        // DELETE: api/Sessions/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEventLog(long id)
+        public async Task<IActionResult> DeleteSession(long id)
         {
-            var eventLog = await _context.EventLogs.FindAsync(id);
-            if (eventLog == null)
+            var session = await _context.Sessions.FindAsync(id);
+            if (session == null)
             {
                 return NotFound();
             }
 
-            _context.EventLogs.Remove(eventLog);
+            _context.Sessions.Remove(session);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool EventLogExists(long id)
+        private bool SessionExists(long id)
         {
-            return _context.EventLogs.Any(e => e.Id == id);
+            return _context.Sessions.Any(e => e.Id == id);
         }
     }
 }

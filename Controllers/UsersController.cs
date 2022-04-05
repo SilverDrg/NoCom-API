@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoCom_API.Models;
+using Konscious.Security.Cryptography;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NoCom_API.Controllers
 {
@@ -19,6 +22,28 @@ namespace NoCom_API.Controllers
         public UsersController(CoreDbContext context)
         {
             _context = context;
+        }
+
+        private async Task<string> HashPassword(string password)
+        {
+            return await Task.Run(() =>
+            {
+                var passwordBytes = Encoding.UTF8.GetBytes(password);
+                var argon2 = new Argon2i(passwordBytes);
+                var salt = new byte[16];
+
+                var random = RandomNumberGenerator.Create();
+                random.GetBytes(salt);
+
+                argon2.DegreeOfParallelism = 2;
+                argon2.MemorySize = 512;
+                argon2.Iterations = 4;
+                argon2.Salt = salt;
+
+                var hashedPassword = argon2.GetBytes(112);
+                var combination = salt.Concat(hashedPassword);
+                return Encoding.UTF8.GetString(combination.ToArray());
+            });
         }
 
         // GET: api/Users
@@ -40,6 +65,22 @@ namespace NoCom_API.Controllers
             }
 
             return user;
+        }
+
+        // GET: api/Users/username
+        [HttpGet("username/{id:alpha}")]
+        public async Task<IActionResult> GetUsername(string id)
+        {
+            Console.WriteLine("name: {0}", id);
+            var user = await _context.Users.Where(user => user.Username == id).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return Ok("available");
+            }
+            else
+            {
+                return Ok("taken");
+            }
         }
 
         // PUT: api/Users/5
@@ -78,6 +119,25 @@ namespace NoCom_API.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
+            user.Password = await HashPassword(user.Password);
+
+            //var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
+
+            //if (existingUser != null)
+            //{
+            //    return StatusCode(400, "Username already exists.");
+            //}
+
+            user.ProfileImage = null;
+            user.BannerImage = null;
+
+            Console.WriteLine("Password length: {0}", user.Password.Length);
+
+            Console.WriteLine("user received: {0} \nid: {1} \nusername: {2} \nemail: {3} \npassword: {4} \nimage: {5} \nbanner: {6} \nisadmin: {7}",
+                user, user.Id, user.Username, user.Email, user.Password, user.ProfileImage, user.BannerImage, user.IsAdmin);
+
+
+
             _context.Users.Add(user);
             try
             {
@@ -95,7 +155,8 @@ namespace NoCom_API.Controllers
                 }
             }
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            //return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return new EmptyResult();
         }
 
         // DELETE: api/Users/5
@@ -114,7 +175,7 @@ namespace NoCom_API.Controllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(long id)
         {
             return _context.Users.Any(e => e.Id == id);
         }

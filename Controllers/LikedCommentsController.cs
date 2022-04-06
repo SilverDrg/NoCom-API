@@ -14,9 +14,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class LikedCommentsController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public LikedCommentsController(CoreDbContext context)
+        public LikedCommentsController(NoComContext context)
         {
             _context = context;
         }

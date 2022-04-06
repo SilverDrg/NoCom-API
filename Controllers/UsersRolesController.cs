@@ -14,9 +14,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class UsersRolesController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public UsersRolesController(CoreDbContext context)
+        public UsersRolesController(NoComContext context)
         {
             _context = context;
         }

@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace NoCom_API.Models
 {
-    public partial class CoreDbContext : DbContext
+    public partial class NoComContext : DbContext
     {
-        public CoreDbContext()
+        public NoComContext()
         {
         }
 
-        public CoreDbContext(DbContextOptions<CoreDbContext> options)
+        public NoComContext(DbContextOptions<NoComContext> options)
             : base(options)
         {
         }
@@ -162,6 +162,12 @@ namespace NoCom_API.Models
                     .HasColumnName("session_token");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.Session)
+                    .HasForeignKey<Session>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_sessions_users");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -191,13 +197,6 @@ namespace NoCom_API.Models
                 entity.Property(e => e.Username)
                     .HasMaxLength(128)
                     .HasColumnName("username");
-
-                entity.HasOne(d => d.IdNavigation)
-                    .WithOne(p => p.User)
-                    .HasPrincipalKey<Session>(p => p.UserId)
-                    .HasForeignKey<User>(d => d.Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_users_sessions");
             });
 
             modelBuilder.Entity<UsersRole>(entity =>

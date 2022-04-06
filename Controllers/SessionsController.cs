@@ -14,9 +14,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class SessionsController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public SessionsController(CoreDbContext context)
+        public SessionsController(NoComContext context)
         {
             _context = context;
         }

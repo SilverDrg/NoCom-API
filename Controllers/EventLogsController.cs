@@ -14,9 +14,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class EventLogsController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public EventLogsController(CoreDbContext context)
+        public EventLogsController(NoComContext context)
         {
             _context = context;
         }

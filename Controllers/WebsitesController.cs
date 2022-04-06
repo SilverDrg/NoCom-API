@@ -14,9 +14,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class WebsitesController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public WebsitesController(CoreDbContext context)
+        public WebsitesController(NoComContext context)
         {
             _context = context;
         }

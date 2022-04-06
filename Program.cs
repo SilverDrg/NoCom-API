@@ -7,7 +7,7 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<CoreDbContext>(options =>
+builder.Services.AddDbContext<NoComContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention();
 });

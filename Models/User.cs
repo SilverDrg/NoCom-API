@@ -24,7 +24,7 @@ namespace NoCom_API.Models
         public byte[]? BannerImage { get; set; }
         public bool IsAdmin { get; set; }
 
-        public virtual Session IdNavigation { get; set; } = null!;
+        public virtual Session Session { get; set; } = null!;
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<EventLog> EventLogs { get; set; }
         public virtual ICollection<LikedComment> LikedComments { get; set; }

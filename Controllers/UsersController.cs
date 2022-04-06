@@ -17,9 +17,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public UsersController(CoreDbContext context)
+        public UsersController(NoComContext context)
         {
             _context = context;
         }
@@ -53,10 +53,12 @@ namespace NoCom_API.Controllers
             var user = await _context.Users.Where(user => user.Username == id).FirstOrDefaultAsync();
             if (user == null)
             {
+                Console.WriteLine("Available");
                 return Ok("available");
             }
             else
             {
+                Console.WriteLine("Taken");
                 return Ok("taken");
             }
         }
@@ -94,10 +96,12 @@ namespace NoCom_API.Controllers
 
         // POST: api/Users/Register
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("/Register")]
-        public async Task<ActionResult<User>> RegisterUser(User user)
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterUser(User user)
         {
-            user.Password = HashPassword(user.Password);
+            Console.WriteLine("Received the register data");
+
+            user.Password = await HashPassword(user.Password);
 
             //var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
 
@@ -134,7 +138,7 @@ namespace NoCom_API.Controllers
             }
 
             //return CreatedAtAction("GetUser", new { id = user.Id }, user);
-            return new EmptyResult();
+            return Ok();
         }
 
         // POST: api/Users/Login
@@ -208,46 +212,46 @@ namespace NoCom_API.Controllers
             return _context.Users.Any(e => e.Username == username);
         }
 
-        //private async Task<string> HashPassword(string password)
-        //{
-        //    return await Task.Run(() =>
-        //    {
-        //        var passwordBytes = Encoding.UTF8.GetBytes(password);
-        //        var argon2 = new Argon2i(passwordBytes);
-        //        var salt = new byte[16];
-
-        //        var random = RandomNumberGenerator.Create();
-        //        random.GetBytes(salt);
-
-        //        argon2.DegreeOfParallelism = 2;
-        //        argon2.MemorySize = 512;
-        //        argon2.Iterations = 4;
-        //        argon2.Salt = salt;
-
-        //        var hashedPassword = argon2.GetBytes(112);
-        //        var combination = salt.Concat(hashedPassword);
-        //        return Encoding.UTF8.GetString(combination.ToArray());
-        //    });
-        //}
-
-        private string HashPassword(string password)
+        private async Task<string> HashPassword(string password)
         {
-            var passwordBytes = Encoding.UTF8.GetBytes(password);
-            var argon2 = new Argon2i(passwordBytes);
-            var salt = new byte[16];
+            return await Task.Run(() =>
+            {
+                var passwordBytes = Encoding.UTF8.GetBytes(password);
+                var argon2 = new Argon2i(passwordBytes);
+                var salt = new byte[16];
 
-            var random = RandomNumberGenerator.Create();
-            random.GetBytes(salt);
+                var random = RandomNumberGenerator.Create();
+                random.GetBytes(salt);
 
-            argon2.DegreeOfParallelism = 2;
-            argon2.MemorySize = 512;
-            argon2.Iterations = 4;
-            argon2.Salt = salt;
+                argon2.DegreeOfParallelism = 2;
+                argon2.MemorySize = 512;
+                argon2.Iterations = 4;
+                argon2.Salt = salt;
 
-            var hashedPassword = argon2.GetBytes(112);
-            var combination = salt.Concat(hashedPassword);
-            return Encoding.UTF8.GetString(combination.ToArray());
+                var hashedPassword = argon2.GetBytes(112);
+                var combination = salt.Concat(hashedPassword);
+                return Encoding.UTF8.GetString(combination.ToArray());
+            });
         }
+
+        //private string HashPassword(string password)
+        //{
+        //    var passwordBytes = Encoding.UTF8.GetBytes(password);
+        //    var argon2 = new Argon2i(passwordBytes);
+        //    var salt = new byte[16];
+
+        //    var random = RandomNumberGenerator.Create();
+        //    random.GetBytes(salt);
+
+        //    argon2.DegreeOfParallelism = 2;
+        //    argon2.MemorySize = 512;
+        //    argon2.Iterations = 4;
+        //    argon2.Salt = salt;
+
+        //    var hashedPassword = argon2.GetBytes(112);
+        //    var combination = salt.Concat(hashedPassword);
+        //    return Encoding.UTF8.GetString(combination.ToArray());
+        //}
 
         private bool MatchingPasswords(string storedPassword, string providedPassword)
         {

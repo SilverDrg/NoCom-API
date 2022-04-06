@@ -14,9 +14,9 @@ namespace NoCom_API.Controllers
     [ApiController]
     public class CommentsController : ControllerBase
     {
-        private readonly CoreDbContext _context;
+        private readonly NoComContext _context;
 
-        public CommentsController(CoreDbContext context)
+        public CommentsController(NoComContext context)
         {
             _context = context;
         }

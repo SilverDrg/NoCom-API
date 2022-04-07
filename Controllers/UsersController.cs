@@ -1,274 +1,296 @@
-﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NoCom_API.Models;
-using Konscious.Security.Cryptography;
-using System.Security.Cryptography;
-using System.Text;
+﻿//#nullable disable
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.EntityFrameworkCore;
+//using NoCom_API.Models;
+//using Konscious.Security.Cryptography;
+//using System.Security.Cryptography;
+//using System.Text;
 
-namespace NoCom_API.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
-    {
-        private readonly NoComContext _context;
+//namespace NoCom_API.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class UsersController : ControllerBase
+//    {
+//        private readonly NoComContext _context;
 
-        public UsersController(NoComContext context)
-        {
-            _context = context;
-        }
+//        public UsersController(NoComContext context)
+//        {
+//            _context = context;
+//        }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-        {
-            return await _context.Users.Include(e => e.Comments).ToListAsync();
-        }
+//        // GET: api/Users
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+//        {
+//            return await _context.Users.Include(e => e.Comments).ToListAsync();
+//        }
 
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
+//        // GET: api/Users/5
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult<User>> GetUser(int id)
+//        {
+//            var user = await _context.Users.FindAsync(id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+//            if (user == null)
+//            {
+//                return NotFound();
+//            }
 
-            return user;
-        }
+//            return user;
+//        }
 
-        // GET: api/Users/Username
-        [HttpGet("Username/{id:alpha}")]
-        public async Task<IActionResult> GetUsername(string id)
-        {
-            Console.WriteLine("name: {0}", id);
-            var user = await _context.Users.Where(user => user.Username == id).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                Console.WriteLine("Available");
-                return Ok("available");
-            }
-            else
-            {
-                Console.WriteLine("Taken");
-                return Ok("taken");
-            }
-        }
+//        // GET: api/Users/Username
+//        [HttpGet("Username/{id:alpha}")]
+//        public async Task<IActionResult> GetUsername(string id)
+//        {
+//            Console.WriteLine("name: {0}", id);
+//            var user = await _context.Users.Where(user => user.Username == id).FirstOrDefaultAsync();
+//            if (user == null)
+//            {
+//                Console.WriteLine("Available");
+//                return Ok("available");
+//            }
+//            else
+//            {
+//                Console.WriteLine("Taken");
+//                return Ok("taken");
+//            }
+//        }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
-        {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
+//        // PUT: api/Users/5
+//        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+//        [HttpPut("{id}")]
+//        public async Task<IActionResult> PutUser(int id, User user)
+//        {
+//            if (id != user.Id)
+//            {
+//                return BadRequest();
+//            }
 
-            _context.Entry(user).State = EntityState.Modified;
+//            _context.Entry(user).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+//            try
+//            {
+//                await _context.SaveChangesAsync();
+//            }
+//            catch (DbUpdateConcurrencyException)
+//            {
+//                if (!UserExists(id))
+//                {
+//                    return NotFound();
+//                }
+//                else
+//                {
+//                    throw;
+//                }
+//            }
 
-            return NoContent();
-        }
+//            return NoContent();
+//        }
 
-        // POST: api/Users/Register
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Register")]
-        public async Task<IActionResult> RegisterUser(User user)
-        {
-            Console.WriteLine("Received the register data");
+//        // POST: api/Users/Register
+//        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+//        [HttpPost("Register")]
+//        public async Task<IActionResult> RegisterUser(User user)
+//        {
+//            Console.WriteLine("Received the register data");
 
-            user.Password = await HashPassword(user.Password);
+//            user.Password = await HashPassword(user.Password);
 
-            //var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
+//            //var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
 
-            //if (existingUser != null)
-            //{
-            //    return StatusCode(400, "Username already exists.");
-            //}
+//            //if (existingUser != null)
+//            //{
+//            //    return StatusCode(400, "Username already exists.");
+//            //}
 
-            user.ProfileImage = null;
-            user.BannerImage = null;
+//            user.ProfileImage = null;
+//            user.BannerImage = null;
 
-            Console.WriteLine("Password length: {0}", user.Password.Length);
+//            Console.WriteLine("Password length: {0}", user.Password.Length);
 
-            Console.WriteLine("user received: {0} \nid: {1} \nusername: {2} \nemail: {3} \npassword: {4} \nimage: {5} \nbanner: {6} \nisadmin: {7}",
-                user, user.Id, user.Username, user.Email, user.Password, user.ProfileImage, user.BannerImage, user.IsAdmin);
-
-
-
-            _context.Users.Add(user);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (UserExists(user.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            //return CreatedAtAction("GetUser", new { id = user.Id }, user);
-            return Ok();
-        }
-
-        // POST: api/Users/Login
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("/Login")]
-        public async Task<ActionResult<User>> LoginUser(User user)
-        {
-            var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
-
-            if (existingUser == null)
-            {
-                return StatusCode(400, "Username doesn't exists.");
-            }
-
-            if (!MatchingPasswords(existingUser.Password, user.Password))
-            {
-                return StatusCode(400, "Incorrect password");
-            }
-
-            Console.WriteLine("Password length: {0}", user.Password.Length);
-
-            Console.WriteLine("user received: {0} \nid: {1} \nusername: {2} \nemail: {3} \npassword: {4} \nimage: {5} \nbanner: {6} \nisadmin: {7}",
-                user, user.Id, user.Username, user.Email, user.Password, user.ProfileImage, user.BannerImage, user.IsAdmin);
+//            Console.WriteLine("user received: {0} \nid: {1} \nusername: {2} \nemail: {3} \npassword: {4} \nimage: {5} \nbanner: {6} \nisadmin: {7}",
+//                user, user.Id, user.Username, user.Email, user.Password, user.ProfileImage, user.BannerImage, user.IsAdmin);
 
 
 
-            _context.Users.Add(user);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (UserExists(user.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+//            _context.Users.Add(user);
+//            try
+//            {
+//                await _context.SaveChangesAsync();
+//            }
+//            catch (DbUpdateException)
+//            {
+//                if (UserExists(user.Id))
+//                {
+//                    return Conflict();
+//                }
+//                else
+//                {
+//                    throw;
+//                }
+//            }
 
-            //return CreatedAtAction("GetUser", new { id = user.Id }, user);
-            return new EmptyResult();
-        }
+//            //return CreatedAtAction("GetUser", new { id = user.Id }, user);
+//            return Ok();
+//        }
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+//        // POST: api/Users/Login
+//        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+//        [HttpPost("Login")]
+//        public async Task<ActionResult<User>> LoginUser(User user)
+//        {
+//            var existingUser = await _context.Users.Where(e => e.Username == user.Username).FirstOrDefaultAsync();
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+//            if (existingUser == null)
+//            {
+//                return StatusCode(400, "Username doesn't exists.");
+//            }
 
-            return NoContent();
-        }
+//            if (!MatchingPasswords(existingUser.Password, user.Password))
+//            {
+//                return StatusCode(400, "Incorrect password");
+//            }
 
-        private bool UserExists(long id)
-        {
-            return _context.Users.Any(e => e.Id == id);
-        }
+//            Console.WriteLine("user received: {0} \nid: {1} \nusername: {2} \nemail: {3} \npassword: {4} \nimage: {5} \nbanner: {6} \nisadmin: {7}",
+//                existingUser, existingUser.Id, existingUser.Username, existingUser.Email, existingUser.Password, existingUser.ProfileImage, existingUser.BannerImage, existingUser.IsAdmin);
 
-        private bool UsernameExists(string username)
-        {
-            return _context.Users.Any(e => e.Username == username);
-        }
+//            //var session = new Session();
+//            //session.SessionToken = GenerateToken();
+//            //session.SessionEnd = DateTime.Now.AddDays(1);
+//            //session.RefreshToken = GenerateToken();
+//            //session.RefreshTokenEnd = DateTime.Now.AddDays(7);
+//            //session.UserId = existingUser.Id;
 
-        private async Task<string> HashPassword(string password)
-        {
-            return await Task.Run(() =>
-            {
-                var passwordBytes = Encoding.UTF8.GetBytes(password);
-                var argon2 = new Argon2i(passwordBytes);
-                var salt = new byte[16];
+//            //_context.Sessions.Add(session);
+//            //try
+//            //{
+//            //    await _context.SaveChangesAsync();
+//            //}
+//            //catch (DbUpdateException)
+//            //{
+//            //    if (SessionExist(session.Id))
+//            //    {
+//            //        return Conflict();
+//            //    }
+//            //    else
+//            //    {
+//            //        throw;
+//            //    }
+//            //}
 
-                var random = RandomNumberGenerator.Create();
-                random.GetBytes(salt);
+//            return Ok("true");
+//        }
 
-                argon2.DegreeOfParallelism = 2;
-                argon2.MemorySize = 512;
-                argon2.Iterations = 4;
-                argon2.Salt = salt;
+//        // DELETE: api/Users/5
+//        [HttpDelete("{id}")]
+//        public async Task<IActionResult> DeleteUser(int id)
+//        {
+//            var user = await _context.Users.FindAsync(id);
+//            if (user == null)
+//            {
+//                return NotFound();
+//            }
 
-                var hashedPassword = argon2.GetBytes(112);
-                var combination = salt.Concat(hashedPassword);
-                return Encoding.UTF8.GetString(combination.ToArray());
-            });
-        }
+//            _context.Users.Remove(user);
+//            await _context.SaveChangesAsync();
 
-        //private string HashPassword(string password)
-        //{
-        //    var passwordBytes = Encoding.UTF8.GetBytes(password);
-        //    var argon2 = new Argon2i(passwordBytes);
-        //    var salt = new byte[16];
+//            return NoContent();
+//        }
 
-        //    var random = RandomNumberGenerator.Create();
-        //    random.GetBytes(salt);
+//        private bool UserExists(long id)
+//        {
+//            return _context.Users.Any(e => e.Id == id);
+//        }
 
-        //    argon2.DegreeOfParallelism = 2;
-        //    argon2.MemorySize = 512;
-        //    argon2.Iterations = 4;
-        //    argon2.Salt = salt;
+//        private bool UsernameExists(string username)
+//        {
+//            return _context.Users.Any(e => e.Username == username);
+//        }
 
-        //    var hashedPassword = argon2.GetBytes(112);
-        //    var combination = salt.Concat(hashedPassword);
-        //    return Encoding.UTF8.GetString(combination.ToArray());
-        //}
+//        private bool SessionExist(long id)
+//        {
+//            return _context.Sessions.Any(e => e.Id == id);
+//        }
 
-        private bool MatchingPasswords(string storedPassword, string providedPassword)
-        {
-            var storedPasswordBytes = Encoding.UTF8.GetBytes(storedPassword);
-            var providedPasswordBytes = Encoding.UTF8.GetBytes(providedPassword);
-            var argon2 = new Argon2i(providedPasswordBytes);
-            var salt = storedPasswordBytes.Take(16).ToArray();
+//        private async Task<string> HashPassword(string password)
+//        {
+//            return await Task.Run(() =>
+//            {
+//                var passwordBytes = Encoding.UTF8.GetBytes(password);
+//                var argon2 = new Argon2i(passwordBytes);
+//                var salt = new byte[16];
 
-            argon2.DegreeOfParallelism = 2;
-            argon2.MemorySize = 512;
-            argon2.Iterations = 4;
-            argon2.Salt = salt;
+//                var random = RandomNumberGenerator.Create();
+//                random.GetBytes(salt);
 
-            var hashedProvidedPassword = argon2.GetBytes(112);
-            var encodedPassword = salt.Concat(hashedProvidedPassword);
+//                argon2.DegreeOfParallelism = 2;
+//                argon2.MemorySize = 512;
+//                argon2.Iterations = 4;
+//                argon2.Salt = salt;
 
-            return storedPassword.Equals(Encoding.UTF8.GetString(encodedPassword.ToArray()));
-        }
-    }
-}
+//                var hashedPassword = argon2.GetBytes(112);
+//                var combination = salt.Concat(hashedPassword);
+//                return Convert.ToBase64String(combination.ToArray());
+//            });
+//        }
+
+//        //private string HashPassword(string password)
+//        //{
+//        //    var passwordBytes = Encoding.UTF8.GetBytes(password);
+//        //    var argon2 = new Argon2i(passwordBytes);
+//        //    var salt = new byte[16];
+
+//        //    var random = RandomNumberGenerator.Create();
+//        //    random.GetBytes(salt);
+
+//        //    argon2.DegreeOfParallelism = 2;
+//        //    argon2.MemorySize = 512;
+//        //    argon2.Iterations = 4;
+//        //    argon2.Salt = salt;
+
+//        //    var hashedPassword = argon2.GetBytes(112);
+//        //    var combination = salt.Concat(hashedPassword);
+//        //    return Encoding.UTF8.GetString(combination.ToArray());
+//        //}
+
+//        private bool MatchingPasswords(string storedPassword, string providedPassword)
+//        {
+//            var storedPasswordBytes = Convert.FromBase64String(storedPassword);
+//            var providedPasswordBytes = Encoding.UTF8.GetBytes(providedPassword);
+//            var argon2 = new Argon2i(providedPasswordBytes);
+//            var salt = storedPasswordBytes.Take(16).ToArray();
+
+//            argon2.DegreeOfParallelism = 2;
+//            argon2.MemorySize = 512;
+//            argon2.Iterations = 4;
+//            argon2.Salt = salt;
+
+//            var hashedProvidedPassword = argon2.GetBytes(112);
+//            var encodedPassword = salt.Concat(hashedProvidedPassword);
+
+//            Console.WriteLine("Salt: {0}", Convert.ToBase64String(salt.ToArray()));
+//            Console.WriteLine("Provided pass: {0}", Convert.ToBase64String(encodedPassword.ToArray()));
+//            Console.WriteLine("Needed pass: {0}", storedPassword);
+
+//            return storedPassword.Equals(Convert.ToBase64String(encodedPassword.ToArray()));
+//        }
+
+//        private string GenerateToken()
+//        {
+//            var tokenBytes = new byte[64];
+//            var random = RandomNumberGenerator.Create();
+//            random.GetBytes(tokenBytes);
+
+//            var token = Convert.ToBase64String(tokenBytes);
+
+//            return token;
+//        }
+//    }
+//}

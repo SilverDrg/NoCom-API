@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 
 namespace NoCom_API.Models
@@ -9,10 +10,10 @@ namespace NoCom_API.Models
     public partial class EventLog
     {
         public long Id { get; set; }
-        public long UserId { get; set; }
+        public string UserId { get; set; } = null!;
         public TimeOnly EventTime { get; set; }
         public string Event { get; set; } = null!;
 
-        public virtual User User { get; set; } = null!;
+        public virtual IdentityUser User { get; set; } = null!;
     }
 }

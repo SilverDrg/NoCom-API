@@ -11,13 +11,11 @@ namespace NoCom_API.Models
         public Website()
         {
             Comments = new HashSet<Comment>();
-            UsersRoles = new HashSet<UsersRole>();
         }
 
         public long Id { get; set; }
         public string UrlHash { get; set; } = null!;
 
         public virtual ICollection<Comment> Comments { get; set; }
-        public virtual ICollection<UsersRole> UsersRoles { get; set; }
     }
 }

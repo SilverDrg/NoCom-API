@@ -17,7 +17,7 @@ namespace NoCom_API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("NoComTest")
+                .HasDefaultSchema("NoCom")
                 .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -51,7 +51,7 @@ namespace NoCom_API.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", "NoComTest");
+                    b.ToTable("AspNetRoles", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -82,7 +82,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_asp_net_role_claims_role_id");
 
-                    b.ToTable("AspNetRoleClaims", "NoComTest");
+                    b.ToTable("AspNetRoleClaims", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
@@ -162,7 +162,7 @@ namespace NoCom_API.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", "NoComTest");
+                    b.ToTable("AspNetUsers", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -193,7 +193,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_asp_net_user_claims_user_id");
 
-                    b.ToTable("AspNetUserClaims", "NoComTest");
+                    b.ToTable("AspNetUserClaims", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -221,7 +221,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_asp_net_user_logins_user_id");
 
-                    b.ToTable("AspNetUserLogins", "NoComTest");
+                    b.ToTable("AspNetUserLogins", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -240,7 +240,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_asp_net_user_roles_role_id");
 
-                    b.ToTable("AspNetUserRoles", "NoComTest");
+                    b.ToTable("AspNetUserRoles", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -264,7 +264,7 @@ namespace NoCom_API.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name")
                         .HasName("pk_asp_net_user_tokens");
 
-                    b.ToTable("AspNetUserTokens", "NoComTest");
+                    b.ToTable("AspNetUserTokens", "NoCom");
                 });
 
             modelBuilder.Entity("NoCom_API.Models.Comment", b =>
@@ -318,7 +318,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("WebsiteId")
                         .HasDatabaseName("ix_comments_website_id");
 
-                    b.ToTable("comments", "NoComTest");
+                    b.ToTable("comments", "NoCom");
                 });
 
             modelBuilder.Entity("NoCom_API.Models.EventLog", b =>
@@ -350,7 +350,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_event_logs_user_id");
 
-                    b.ToTable("event_logs", "NoComTest");
+                    b.ToTable("event_logs", "NoCom");
                 });
 
             modelBuilder.Entity("NoCom_API.Models.LikedComment", b =>
@@ -380,7 +380,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_liked_comments_user_id");
 
-                    b.ToTable("liked_comments", "NoComTest");
+                    b.ToTable("liked_comments", "NoCom");
                 });
 
             modelBuilder.Entity("NoCom_API.Models.Profile", b =>
@@ -411,7 +411,7 @@ namespace NoCom_API.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_profile_user_id");
 
-                    b.ToTable("profile", "NoComTest");
+                    b.ToTable("profile", "NoCom");
                 });
 
             modelBuilder.Entity("NoCom_API.Models.Website", b =>
@@ -431,7 +431,7 @@ namespace NoCom_API.Migrations
                     b.HasKey("Id")
                         .HasName("pk_websites");
 
-                    b.ToTable("websites", "NoComTest");
+                    b.ToTable("websites", "NoCom");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

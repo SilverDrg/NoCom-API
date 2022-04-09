@@ -26,7 +26,7 @@ namespace NoCom_API.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("NoComTest");
+            modelBuilder.HasDefaultSchema("NoCom");
             base.OnModelCreating(modelBuilder);
             //modelBuilder.Entity<Comment>(entity =>
             //{

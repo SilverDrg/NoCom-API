@@ -12,7 +12,7 @@ namespace NoCom_API.Migrations
         {
             migrationBuilder.CreateTable(
                 name: "profile",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -27,7 +27,7 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_profile_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -35,7 +35,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "ix_profile_user_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "profile",
                 column: "user_id");
         }
@@ -44,7 +44,7 @@ namespace NoCom_API.Migrations
         {
             migrationBuilder.DropTable(
                 name: "profile",
-                schema: "NoComTest");
+                schema: "NoCom");
         }
     }
 }

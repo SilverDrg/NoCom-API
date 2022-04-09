@@ -11,11 +11,11 @@ namespace NoCom_API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "NoComTest");
+                name: "NoCom");
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<string>(type: "text", nullable: false),
@@ -30,7 +30,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<string>(type: "text", nullable: false),
@@ -56,7 +56,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "websites",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -70,7 +70,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -85,7 +85,7 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_asp_net_role_claims_asp_net_roles_role_id",
                         column: x => x.role_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetRoles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -93,7 +93,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -108,7 +108,7 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_asp_net_user_claims_asp_net_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -116,7 +116,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserLogins",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     login_provider = table.Column<string>(type: "text", nullable: false),
@@ -130,7 +130,7 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_asp_net_user_logins_asp_net_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -138,7 +138,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserRoles",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     user_id = table.Column<string>(type: "text", nullable: false),
@@ -150,14 +150,14 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_asp_net_user_roles_asp_net_roles_role_id",
                         column: x => x.role_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetRoles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_asp_net_user_roles_asp_net_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -165,7 +165,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserTokens",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     user_id = table.Column<string>(type: "text", nullable: false),
@@ -179,7 +179,7 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_asp_net_user_tokens_asp_net_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -187,7 +187,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "event_logs",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -202,7 +202,7 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_event_logs_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -210,7 +210,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "comments",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -229,20 +229,20 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_comments_comments_reply_to_navigation_id",
                         column: x => x.reply_to_navigation_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "comments",
                         principalColumn: "id");
                     table.ForeignKey(
                         name: "fk_comments_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_comments_websites_website_id",
                         column: x => x.website_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "websites",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -250,7 +250,7 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateTable(
                 name: "liked_comments",
-                schema: "NoComTest",
+                schema: "NoCom",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
@@ -264,14 +264,14 @@ namespace NoCom_API.Migrations
                     table.ForeignKey(
                         name: "fk_liked_comments_comments_comment_id",
                         column: x => x.comment_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "comments",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_liked_comments_users_user_id",
                         column: x => x.user_id,
-                        principalSchema: "NoComTest",
+                        principalSchema: "NoCom",
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -279,81 +279,81 @@ namespace NoCom_API.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_role_claims_role_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetRoleClaims",
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetRoles",
                 column: "normalized_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_user_claims_user_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetUserClaims",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_user_logins_user_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetUserLogins",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_user_roles_role_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetUserRoles",
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetUsers",
                 column: "normalized_email");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "AspNetUsers",
                 column: "normalized_user_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_comments_reply_to_navigation_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "comments",
                 column: "reply_to_navigation_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_comments_user_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "comments",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_comments_website_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "comments",
                 column: "website_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_event_logs_user_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "event_logs",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_liked_comments_comment_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "liked_comments",
                 column: "comment_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_liked_comments_user_id",
-                schema: "NoComTest",
+                schema: "NoCom",
                 table: "liked_comments",
                 column: "user_id");
         }
@@ -362,47 +362,47 @@ namespace NoCom_API.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "AspNetUserClaims",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "AspNetUserLogins",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "AspNetUserRoles",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "event_logs",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "liked_comments",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "comments",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers",
-                schema: "NoComTest");
+                schema: "NoCom");
 
             migrationBuilder.DropTable(
                 name: "websites",
-                schema: "NoComTest");
+                schema: "NoCom");
         }
     }
 }

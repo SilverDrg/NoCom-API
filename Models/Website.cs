@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace NoCom_API.Models
 {
@@ -16,6 +17,7 @@ namespace NoCom_API.Models
         public long Id { get; set; }
         public string UrlHash { get; set; } = null!;
 
+        [JsonIgnore]
         public virtual ICollection<Comment> Comments { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -75,9 +76,11 @@ namespace NoCom_API.Controllers
 
         // POST: api/LikedComments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<LikedComment>> PostLikedComment(LikedComment likedComment)
+        [Authorize]
+        [HttpPost("{commentId}")]
+        public async Task<ActionResult<LikedComment>> PostLikedComment(string commentId)
         {
+            var likedComment = new LikedComment();
             _context.LikedComments.Add(likedComment);
             try
             {

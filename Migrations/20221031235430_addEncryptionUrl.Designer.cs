@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NoCom_API.Models;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NoCom_API.Migrations
 {
     [DbContext(typeof(NoComContext))]
-    partial class NoComContextModelSnapshot : ModelSnapshot
+    [Migration("20221031235430_addEncryptionUrl")]
+    partial class addEncryptionUrl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,10 +282,6 @@ namespace NoCom_API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("content");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
                     b.Property<string>("EncryptedUrl")
                         .HasColumnType("text")
                         .HasColumnName("encrypted_url");
@@ -303,10 +301,6 @@ namespace NoCom_API.Migrations
                     b.Property<long?>("ReplyToNavigationId")
                         .HasColumnType("bigint")
                         .HasColumnName("reply_to_navigation_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text")
@@ -340,17 +334,13 @@ namespace NoCom_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
                     b.Property<string>("Event")
                         .HasColumnType("text")
                         .HasColumnName("event");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.Property<TimeOnly>("EventTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("event_time");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text")
@@ -407,17 +397,9 @@ namespace NoCom_API.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("banner");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
                     b.Property<byte[]>("Image")
                         .HasColumnType("bytea")
                         .HasColumnName("image");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text")

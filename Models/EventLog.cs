@@ -11,8 +11,9 @@ namespace NoCom_API.Models
     {
         public long Id { get; set; }
         public string UserId { get; set; } = null!;
-        public TimeOnly EventTime { get; set; }
         public string Event { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         public virtual IdentityUser User { get; set; } = null!;
     }

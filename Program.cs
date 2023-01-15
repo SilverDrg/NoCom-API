@@ -94,12 +94,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
-
-app.UseAuthorization();
-app.UseAuthentication();
 
 app.MapControllers();
 

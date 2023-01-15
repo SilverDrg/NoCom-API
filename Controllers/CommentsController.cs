@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoCom_API.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace NoCom_API.Controllers
 {
@@ -23,8 +25,10 @@ namespace NoCom_API.Controllers
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string Username { get; set; }
+        public Boolean IsOwner { get; set; } = false;
+        public long RepliesCount { get; set; } = 0;
 
-        public virtual CommentDTO? ReplyToNavigation { get; set; }
+        public List<CommentDTO>? Replies { get; set; } = new List<CommentDTO>();
     }
     [Route("api/[controller]")]
     [ApiController]
@@ -48,31 +52,25 @@ namespace NoCom_API.Controllers
         [HttpGet("{hash}/{page}")]
         public async Task<ActionResult<IEnumerable<CommentDTO>>> GetCommentsPage(string hash, int page)
         {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var urlHash = GetHashString(hash);
-            var comment = await _context.Comments
+            var comments = await _context.Comments
                 //.Where(comment => comment.Website.UrlHash == urlHash)
-                .Select(comment => new CommentDTO 
-                { 
-                    Id = comment.Id,
-                    Content = comment.Content,
-                    EncryptedUrl = comment.EncryptedUrl,
-                    Likes = comment.Likes,
-                    Nsfw = comment.Nsfw,
-                    ReplyTo = comment.ReplyTo,
-                    CreatedAt = comment.CreatedAt,
-                    UpdatedAt = comment.UpdatedAt,
-                    Username = comment.User.UserName,
-                })
-                .Skip((page-1)*20)
+                .Include(comment => comment.User)
+                .Include(comment => comment.InverseReplyToNavigation)
+                .Skip((page - 1)*20)
                 .Take(20)
                 .ToListAsync();
 
-            if (comment == null)
+            var commentsDto = new List<CommentDTO>();
+            comments.ForEach(comment => commentsDto.Add(ModelToDTOWithVirtual(comment, userId)));
+
+            if (commentsDto == null && commentsDto.Count <= 0)
             {
                 return NotFound();
             }
 
-            return comment;
+            return commentsDto;
         }
 
         // GET: api/Comment/{id}
@@ -220,6 +218,48 @@ namespace NoCom_API.Controllers
                 sb.Append(b.ToString("X2"));
 
             return sb.ToString();
+        }
+
+        private static CommentDTO ModelToDTO(Comment comment, string? userId)
+        {
+            var isOwner = false;
+            if (userId != null)
+            {
+                isOwner = comment.UserId == userId;
+            }
+
+            var dto = new CommentDTO
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                EncryptedUrl = comment?.EncryptedUrl,
+                Likes = comment.Likes,
+                Nsfw = comment.Nsfw,
+                ReplyTo = comment?.ReplyTo,
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt,
+                Username = comment.User?.UserName,
+                IsOwner = isOwner,
+                RepliesCount = comment.InverseReplyToNavigation.Count(),
+            };
+
+            return dto;
+        }
+
+        private static CommentDTO ModelToDTOWithVirtual(Comment comment, string userId)
+        {
+            CommentDTO dto = ModelToDTO(comment, userId);
+            List<CommentDTO> dtoReplies = new List<CommentDTO>();
+            var replies = comment.InverseReplyToNavigation.OrderByDescending(c => c.CreatedAt).Take(5).ToList();
+            foreach (var (reply, index) in replies.Select((value, i) => (value, i)))
+            {
+                if (index == 5) break;
+                dtoReplies.Add(ModelToDTO(reply, userId));
+                Console.WriteLine(reply?.User.ToString());
+            }
+            dto.Replies = dtoReplies;
+
+            return dto;
         }
 
         public class CommentPostBody

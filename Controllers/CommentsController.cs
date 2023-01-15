@@ -30,6 +30,16 @@ namespace NoCom_API.Controllers
 
         public List<CommentDTO>? Replies { get; set; } = new List<CommentDTO>();
     }
+
+    public class CommentPostBody
+    {
+        public string userId { get; set; }
+        public string content { get; set; }
+        public string website { get; set; }
+        public bool nsfw { get; set; }
+
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class CommentsController : ControllerBase
@@ -52,12 +62,17 @@ namespace NoCom_API.Controllers
         [HttpGet("{hash}/{page}")]
         public async Task<ActionResult<IEnumerable<CommentDTO>>> GetCommentsPage(string hash, int page)
         {
-            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string identityName = HttpContext.User.Identity.Name;
+            Console.WriteLine("User Name: {0} ", identityName);
+            string userId = null;
+            if (identityName != null) userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+
             var urlHash = GetHashString(hash);
             var comments = await _context.Comments
                 //.Where(comment => comment.Website.UrlHash == urlHash)
                 .Include(comment => comment.User)
                 .Include(comment => comment.InverseReplyToNavigation)
+                .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1)*20)
                 .Take(20)
                 .ToListAsync();
@@ -246,7 +261,7 @@ namespace NoCom_API.Controllers
             return dto;
         }
 
-        private static CommentDTO ModelToDTOWithVirtual(Comment comment, string userId)
+        private static CommentDTO ModelToDTOWithVirtual(Comment comment, string? userId)
         {
             CommentDTO dto = ModelToDTO(comment, userId);
             List<CommentDTO> dtoReplies = new List<CommentDTO>();
@@ -260,15 +275,6 @@ namespace NoCom_API.Controllers
             dto.Replies = dtoReplies;
 
             return dto;
-        }
-
-        public class CommentPostBody
-        {
-            public string userId { get; set; }
-            public string content { get; set; }
-            public string website { get; set; }
-            public bool nsfw { get; set; }
-
         }
     }
 }

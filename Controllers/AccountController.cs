@@ -31,7 +31,7 @@ namespace JWTAuthentication.Controllers
             _context = context;
         }
 
-        //GET: api/Users/Username
+        //GET: api/Account/Username/{username}
         [HttpGet("Username/{id:alpha}")]
         public IActionResult GetUsername(string id)
         {

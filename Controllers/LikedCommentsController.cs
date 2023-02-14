@@ -22,17 +22,44 @@ namespace NoCom_API.Controllers
     public class LikedCommentsController : ControllerBase
     {
         private readonly NoComContext _context;
+        private static int _pageSize = 10;
 
         public LikedCommentsController(NoComContext context)
         {
             _context = context;
         }
 
-        // GET: api/LikedComments
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<LikedComment>>> GetLikedComments()
+        // GET: api/LikedComments/user/{page}
+        [Authorize]
+        [HttpGet("user/{sortBy}/{page}/{nsfw}")]
+        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetLikedComments(string sortBy, int page, bool nsfw)
         {
-            return await _context.LikedComments.ToListAsync();
+            string identityName = HttpContext.User.Identity.Name;
+            Console.WriteLine("User Name: {0} ", identityName);
+
+            if (identityName == null) return NotFound();
+            string userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+
+            var comments = await _context.LikedComments
+                .Include(x => x.Comment.User)
+                .Include(x => x.Comment.Website)
+                .Include(x => x.Comment.InverseReplyToNavigation)
+                .Where(x => x.UserId == userId && x.Comment.IsDeleted == false && (nsfw || x.Comment.Nsfw == nsfw))
+                .OrderByDescending(x => x.Id)
+                .Skip((page - 1) * _pageSize)
+                .Take(_pageSize)
+                .ToListAsync();
+
+
+            var commentsDto = new List<CommentDTO>();
+            comments.ForEach(comment => commentsDto.Add(CommentsController.ModelToDTOWithVirtual(_context, comment.Comment, userId)));
+
+            if (commentsDto == null && commentsDto.Count <= 0)
+            {
+                return NotFound();
+            }
+
+            return commentsDto;
         }
 
         // GET: api/LikedComments/5

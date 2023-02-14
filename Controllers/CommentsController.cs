@@ -11,6 +11,8 @@ using NoCom_API.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using System.Linq.Expressions;
+using NoCom_API.Tools;
 
 namespace NoCom_API.Controllers
 {
@@ -24,6 +26,8 @@ namespace NoCom_API.Controllers
         public long? ReplyTo { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public bool IsLiked { get; set; } = false;
         public string Username { get; set; }
         public Boolean IsOwner { get; set; } = false;
         public long RepliesCount { get; set; } = 0;
@@ -45,6 +49,7 @@ namespace NoCom_API.Controllers
     public class CommentsController : ControllerBase
     {
         private readonly NoComContext _context;
+        private static int _pageSize = 10;
 
         public CommentsController(NoComContext context)
         {
@@ -58,9 +63,9 @@ namespace NoCom_API.Controllers
             return await _context.Comments.ToListAsync();
         }
 
-        // GET: api/Comments/5
-        [HttpGet("{hash}/{page}")]
-        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetCommentsPage(string hash, int page)
+        // GET: api/Comments/list/{website}/{orderBy}/{page}
+        [HttpGet("all/{hash}/{orderBy}/{page}/{nsfw}")]
+        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetCommentsPage(string hash, string orderBy, int page, bool nsfw)
         {
             string identityName = HttpContext.User.Identity.Name;
             Console.WriteLine("User Name: {0} ", identityName);
@@ -68,17 +73,17 @@ namespace NoCom_API.Controllers
             if (identityName != null) userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
 
             var urlHash = GetHashString(hash);
-            var comments = await _context.Comments
-                //.Where(comment => comment.Website.UrlHash == urlHash)
+            var query = _context.Comments
+                //.Where(comment => comment.Website.UrlHash == urlHash && comment.IsDeleted == false && comment.Nsfw == nsfw)
                 .Include(comment => comment.User)
-                .Include(comment => comment.InverseReplyToNavigation)
-                .OrderByDescending(x => x.CreatedAt)
-                .Skip((page - 1)*20)
-                .Take(20)
+                .Include(comment => comment.InverseReplyToNavigation);
+            var comments = await Helper.OrderBy(query, OrderByParameter(orderBy), false)
+                .Skip((page - 1)* _pageSize)
+                .Take(_pageSize)
                 .ToListAsync();
 
             var commentsDto = new List<CommentDTO>();
-            comments.ForEach(comment => commentsDto.Add(ModelToDTOWithVirtual(comment, userId)));
+            comments.ForEach(comment => commentsDto.Add(ModelToDTOWithVirtual(_context, comment, userId)));
 
             if (commentsDto == null && commentsDto.Count <= 0)
             {
@@ -86,6 +91,55 @@ namespace NoCom_API.Controllers
             }
 
             return commentsDto;
+        }
+
+        // GET: api/Comments/user/{sorting}/{page}
+        [HttpGet("user/{orderBy}/{page}/{nsfw}")]
+        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetUserCommentsTopPage(string orderBy, int page, bool nsfw)
+        {
+            string identityName = HttpContext.User.Identity.Name;
+            Console.WriteLine("User Name: {0} ", identityName);
+
+            if (identityName == null) return NotFound();
+            string userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+
+            var query = _context.Comments
+                .Where(comment => comment.IsDeleted == false && comment.UserId == userId && (nsfw || comment.Nsfw == nsfw))
+                .Include(comment => comment.User)
+                .Include(comment => comment.InverseReplyToNavigation)
+                .Include(comment => comment.Website);
+
+            var comments = await Helper.OrderBy(query, OrderByParameter(orderBy), false)
+                .Skip((page - 1) * _pageSize)
+                .Take(_pageSize)
+                .ToListAsync();
+
+            var commentsDto = new List<CommentDTO>();
+            comments.ForEach(comment => commentsDto.Add(ModelToDTOWithVirtual(_context, comment, userId)));
+
+            if (commentsDto == null && commentsDto.Count <= 0)
+            {
+                return NotFound();
+            }
+
+            return commentsDto;
+        }
+
+        // GET: api/Comments/{website}/{id}
+        [HttpGet("{website}/{id}")]
+        public async Task<ActionResult<Comment>> GetComment(string website, long id)
+        {
+            var urlHash = GetHashString(website);
+            var comment = await _context.Comments
+                .Where(comment => comment.Website.UrlHash == urlHash && comment.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            return comment;
         }
 
         // GET: api/Comment/{id}
@@ -195,19 +249,86 @@ namespace NoCom_API.Controllers
         }
 
         // DELETE: api/Comments/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComment(long id)
         {
+            string identityName = HttpContext.User.Identity.Name;
+            Console.WriteLine("User Name: {0} ", identityName);
+
+            if (identityName == null) return NotFound();
+            string userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
             {
                 return NotFound();
             }
 
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
+            if (comment.UserId == userId)
+            {
+                comment.IsDeleted = true;
+                comment.UpdatedAt = DateTime.Now;
+                _context.Entry(comment).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+            }
 
             return NoContent();
+        }
+
+        public static CommentDTO ModelToDTO(NoComContext _context, Comment comment, string? userId)
+        {
+            var isOwner = false;
+            var isLiked = false;
+            var commentContent = comment.Content;
+            var username = comment.User?.UserName;
+
+            if (userId != null)
+            {
+                isOwner = comment.UserId == userId;
+                isLiked = IsLiked(_context, comment, userId);
+            }
+
+            if (comment.IsDeleted)
+            {
+                commentContent = "This comment is no longer available";
+                username = null;
+            }
+
+            var dto = new CommentDTO
+            {
+                Id = comment.Id,
+                Content = commentContent,
+                EncryptedUrl = comment?.EncryptedUrl,
+                Likes = comment.Likes,
+                Nsfw = comment.Nsfw,
+                ReplyTo = comment?.ReplyTo,
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt,
+                IsDeleted = comment.IsDeleted,
+                Username = username,
+                IsOwner = isOwner,
+                IsLiked = isLiked,
+                RepliesCount = comment.InverseReplyToNavigation.Count(),
+            };
+
+            return dto;
+        }
+
+        public static CommentDTO ModelToDTOWithVirtual(NoComContext _context, Comment comment, string? userId)
+        {
+            CommentDTO dto = ModelToDTO(_context, comment, userId);
+            List<CommentDTO> dtoReplies = new List<CommentDTO>();
+            var replies = comment.InverseReplyToNavigation.OrderByDescending(c => c.CreatedAt).Take(5).ToList();
+            foreach (var (reply, index) in replies.Select((value, i) => (value, i)))
+            {
+                if (index == 5) break;
+                dtoReplies.Add(ModelToDTO(_context, reply, userId));
+            }
+            dto.Replies = dtoReplies;
+
+            return dto;
         }
 
         private bool CommentExists(long id)
@@ -235,46 +356,25 @@ namespace NoCom_API.Controllers
             return sb.ToString();
         }
 
-        private static CommentDTO ModelToDTO(Comment comment, string? userId)
+        private static bool IsLiked(NoComContext _context, Comment comment, string userId)
         {
-            var isOwner = false;
-            if (userId != null)
-            {
-                isOwner = comment.UserId == userId;
-            }
+            var likedComment = _context.LikedComments
+                .Where(e => 
+                    e.UserId == userId && 
+                    e.CommentId == comment.Id)
+                .FirstOrDefault();
 
-            var dto = new CommentDTO
-            {
-                Id = comment.Id,
-                Content = comment.Content,
-                EncryptedUrl = comment?.EncryptedUrl,
-                Likes = comment.Likes,
-                Nsfw = comment.Nsfw,
-                ReplyTo = comment?.ReplyTo,
-                CreatedAt = comment.CreatedAt,
-                UpdatedAt = comment.UpdatedAt,
-                Username = comment.User?.UserName,
-                IsOwner = isOwner,
-                RepliesCount = comment.InverseReplyToNavigation.Count(),
-            };
-
-            return dto;
+            return likedComment != null;
         }
 
-        private static CommentDTO ModelToDTOWithVirtual(Comment comment, string? userId)
+        private static string OrderByParameter(string sorting)
         {
-            CommentDTO dto = ModelToDTO(comment, userId);
-            List<CommentDTO> dtoReplies = new List<CommentDTO>();
-            var replies = comment.InverseReplyToNavigation.OrderByDescending(c => c.CreatedAt).Take(5).ToList();
-            foreach (var (reply, index) in replies.Select((value, i) => (value, i)))
+            return sorting switch
             {
-                if (index == 5) break;
-                dtoReplies.Add(ModelToDTO(reply, userId));
-                Console.WriteLine(reply?.User.ToString());
-            }
-            dto.Replies = dtoReplies;
-
-            return dto;
+                "new" => "CreatedAt",
+                "top" => "Likes",
+                _ => "CreatedAt",
+            };
         }
     }
 }

@@ -63,7 +63,7 @@ namespace NoCom_API.Controllers
             return await _context.Comments.ToListAsync();
         }
 
-        // GET: api/Comments/list/{website}/{orderBy}/{page}
+        // GET: api/Comments/all/{website}/{orderBy}/{page}
         [HttpGet("all/{hash}/{orderBy}/{page}/{nsfw}")]
         public async Task<ActionResult<IEnumerable<CommentDTO>>> GetCommentsPage(string hash, string orderBy, int page, bool nsfw)
         {

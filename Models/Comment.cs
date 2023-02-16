@@ -26,6 +26,7 @@ namespace NoCom_API.Models
         public long? ReplyTo { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         public virtual Comment? ReplyToNavigation { get; set; }
         [JsonIgnore]

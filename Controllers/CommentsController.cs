@@ -144,16 +144,57 @@ namespace NoCom_API.Controllers
 
         // GET: api/Comment/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetComment(long id)
+        public async Task<ActionResult<CommentDTO>> GetComment(long id)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            string identityName = HttpContext.User.Identity.Name;
+            Console.WriteLine("User Name: {0} ", identityName);
+            string userId = null;
+            if (identityName != null) userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+
+            var comment = await _context.Comments
+                .Include(comment => comment.User)
+                .Include(comment => comment.InverseReplyToNavigation)
+                .Where(comment => comment.Id == id)
+                .FirstOrDefaultAsync();
+
+            var commentDTO = ModelToDTO(_context, comment, userId);
 
             if (comment == null)
             {
                 return NotFound();
             }
 
-            return comment;
+            return commentDTO;
+        }
+
+        // GET: api/Comment/{id}
+        [HttpGet("{id}/{orderBy}/{page}/{nsfw}")]
+        public async Task<ActionResult<IEnumerable<CommentDTO>>> GetReplies(long id, string orderBy, int page, bool nsfw)
+        {
+            string identityName = HttpContext.User.Identity.Name;
+            Console.WriteLine("User Name: {0} ", identityName);
+            string userId = null;
+            if (identityName != null) userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+
+            var query = _context.Comments
+                .Include(comment => comment.User)
+                .Include(comment => comment.InverseReplyToNavigation)
+                .Where(comment => comment.ReplyTo == id);
+
+            var replies = await Helper.OrderBy(query, OrderByParameter(orderBy), false)
+                .Skip((page - 1) * _pageSize)
+                .Take(_pageSize)
+                .ToListAsync();
+
+            var commentDTO = new List<CommentDTO>();
+            replies.ForEach(reply => commentDTO.Add(ModelToDTO(_context, reply, userId)));
+
+            if (replies == null)
+            {
+                return NotFound();
+            }
+
+            return commentDTO;
         }
 
         // PUT: api/Comments/5

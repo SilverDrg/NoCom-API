@@ -41,6 +41,7 @@ namespace NoCom_API.Controllers
         public string content { get; set; }
         public string website { get; set; }
         public bool nsfw { get; set; }
+        public string replyId { get; set; } = null!;
 
     }
 
@@ -185,6 +186,7 @@ namespace NoCom_API.Controllers
                 .Skip((page - 1) * _pageSize)
                 .Take(_pageSize)
                 .ToListAsync();
+            Console.WriteLine("Replies found: {0}", replies.Count);
 
             var commentDTO = new List<CommentDTO>();
             replies.ForEach(reply => commentDTO.Add(ModelToDTO(_context, reply, userId)));
@@ -235,11 +237,12 @@ namespace NoCom_API.Controllers
         public async Task<ActionResult<Comment>> PostComment(CommentPostBody commentData)
         {
             Console.WriteLine(
-                "UserId: {0} \nContent: {1} \nWebsite: {2} \nNsfw: {3}", 
+                "UserId: {0} \nContent: {1} \nWebsite: {2} \nNsfw: {3} \nReply to: {4}", 
                 commentData.userId, 
                 commentData.content, 
                 commentData.website, 
-                commentData.nsfw
+                commentData.nsfw,
+                commentData.replyId
             );
 
             var urlHash = GetHashString(commentData.website);
@@ -268,6 +271,8 @@ namespace NoCom_API.Controllers
             comment.Nsfw = commentData.nsfw;
             comment.CreatedAt = DateTime.Now;
             comment.UpdatedAt = DateTime.Now;
+
+            if (commentData.replyId != "undefined") comment.ReplyTo = Convert.ToInt64(commentData.replyId);
 
             _context.Comments.Add(comment);
             try

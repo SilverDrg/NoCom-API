@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoCom_API.Models;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,15 +17,22 @@ namespace NoCom_API.Controllers
         public long likes { get; set; }
     }
 
+    public class AvatarPostBody
+    {
+        public string name { get; set; }
+        public IFormFile image { get; set; }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
     {
         private readonly NoComContext _context;
-        private static int _pageSize = 10;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProfileController(NoComContext context)
+        public ProfileController(NoComContext context, IWebHostEnvironment environment)
         {
+            _webHostEnvironment = environment;
             _context = context;
         }
         // GET: api/Profile/id/{userId}
@@ -60,9 +69,17 @@ namespace NoCom_API.Controllers
         }
 
         // POST api/<ProfileController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("avatar")]
+        public async Task<IActionResult> UploadAvatar([FromForm] AvatarPostBody avatar)
         {
+            Console.WriteLine("Name: {0} \nImage: {1}", avatar.name, avatar.image);
+            Console.WriteLine(_webHostEnvironment.ContentRootPath);
+            Guid id = Guid.NewGuid();
+            using (var fileStream = new FileStream(Path.Combine(_webHostEnvironment.ContentRootPath, "Images", id.ToString() + ".jpg"), FileMode.Create))
+            {
+                avatar.image.CopyTo(fileStream);
+            }
+            return NoContent();
         }
 
         // PUT api/<ProfileController>/5

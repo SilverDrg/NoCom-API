@@ -342,6 +342,9 @@ namespace NoCom_API.Controllers
                 username = null;
             }
 
+            var repliesCount = _context.Comments.Count(com => com.ReplyTo == comment.Id);
+            Console.WriteLine("comment {0}, has {1} replies", comment.Id, repliesCount);
+
             var dto = new CommentDTO
             {
                 Id = comment.Id,
@@ -356,7 +359,7 @@ namespace NoCom_API.Controllers
                 Username = username,
                 IsOwner = isOwner,
                 IsLiked = isLiked,
-                RepliesCount = comment.InverseReplyToNavigation.Count(),
+                RepliesCount = repliesCount,
             };
 
             return dto;

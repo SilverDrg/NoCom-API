@@ -6,8 +6,8 @@ namespace NoCom_API.Models
     {
         public int Id { get; set; }
         public string UserId { get; set; } = null!;
-        public byte[]? Image { get; set; }
-        public byte[]? Banner { get; set; }
+        public string? Image { get; set; }
+        public string? Banner { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 

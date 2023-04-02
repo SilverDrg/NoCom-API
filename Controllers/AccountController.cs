@@ -32,7 +32,7 @@ namespace JWTAuthentication.Controllers
         }
 
         //GET: api/Account/Username/{username}
-        [HttpGet("Username/{id:alpha}")]
+        [HttpGet("Username/{id}")]
         public IActionResult GetUsername(string id)
         {
             Console.WriteLine("name: {0}", id);

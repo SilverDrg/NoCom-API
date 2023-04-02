@@ -72,13 +72,19 @@ namespace NoCom_API.Controllers
             Console.WriteLine("User Name: {0} ", identityName);
             string userId = null;
             if (identityName != null) userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
+            Console.WriteLine(
+                "Website: {0}",
+                hash
+            );
 
-            var urlHash = GetHashString(hash);
+            bool ascending = false;
+            if (orderBy == "old") ascending = true;
+
             var query = _context.Comments
-                //.Where(comment => comment.Website.UrlHash == urlHash && comment.IsDeleted == false && comment.Nsfw == nsfw)
+                .Where(comment => comment.Website.UrlHash == hash && comment.IsDeleted == false && (nsfw || comment.Nsfw == nsfw))
                 .Include(comment => comment.User)
                 .Include(comment => comment.InverseReplyToNavigation);
-            var comments = await Helper.OrderBy(query, OrderByParameter(orderBy), false)
+            var comments = await Helper.OrderBy(query, OrderByParameter(orderBy), ascending)
                 .Skip((page - 1)* _pageSize)
                 .Take(_pageSize)
                 .ToListAsync();
@@ -104,13 +110,16 @@ namespace NoCom_API.Controllers
             if (identityName == null) return NotFound();
             string userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
 
+            bool ascending = false;
+            if (orderBy == "old") ascending = true;
+
             var query = _context.Comments
                 .Where(comment => comment.IsDeleted == false && comment.UserId == userId && (nsfw || comment.Nsfw == nsfw))
                 .Include(comment => comment.User)
                 .Include(comment => comment.InverseReplyToNavigation)
                 .Include(comment => comment.Website);
 
-            var comments = await Helper.OrderBy(query, OrderByParameter(orderBy), false)
+            var comments = await Helper.OrderBy(query, OrderByParameter(orderBy), ascending)
                 .Skip((page - 1) * _pageSize)
                 .Take(_pageSize)
                 .ToListAsync();
@@ -130,9 +139,9 @@ namespace NoCom_API.Controllers
         [HttpGet("{website}/{id}")]
         public async Task<ActionResult<Comment>> GetComment(string website, long id)
         {
-            var urlHash = GetHashString(website);
+            //var urlHash = GetHashString(website);
             var comment = await _context.Comments
-                .Where(comment => comment.Website.UrlHash == urlHash && comment.Id == id)
+                .Where(comment => comment.Website.UrlHash == website && comment.Id == id)
                 .FirstOrDefaultAsync();
 
             if (comment == null)
@@ -177,12 +186,15 @@ namespace NoCom_API.Controllers
             string userId = null;
             if (identityName != null) userId = (await _context.Users.Where(x => x.UserName == identityName).FirstOrDefaultAsync()).Id;
 
+            bool ascending = false;
+            if (orderBy == "old") ascending = true;
+
             var query = _context.Comments
                 .Include(comment => comment.User)
                 .Include(comment => comment.InverseReplyToNavigation)
                 .Where(comment => comment.ReplyTo == id);
 
-            var replies = await Helper.OrderBy(query, OrderByParameter(orderBy), false)
+            var replies = await Helper.OrderBy(query, OrderByParameter(orderBy), ascending)
                 .Skip((page - 1) * _pageSize)
                 .Take(_pageSize)
                 .ToListAsync();
@@ -245,12 +257,12 @@ namespace NoCom_API.Controllers
                 commentData.replyId
             );
 
-            var urlHash = GetHashString(commentData.website);
+            //var urlHash = GetHashString(commentData.website);
 
-            if (!WebsiteExists(urlHash))
+            if (!WebsiteExists(commentData.website))
             {
                 var newWebsite = new Website();
-                newWebsite.UrlHash = urlHash;
+                newWebsite.UrlHash = commentData.website;
                 _context.Websites.Add(newWebsite);
                 try
                 {
@@ -262,7 +274,7 @@ namespace NoCom_API.Controllers
                 }
             }
 
-            var website = _context.Websites.Where(e => e.UrlHash == urlHash).FirstOrDefault();
+            var website = _context.Websites.Where(e => e.UrlHash == commentData.website).FirstOrDefault();
             var comment = new Comment();
             comment.UserId = commentData.userId;
             comment.Content = commentData.content;

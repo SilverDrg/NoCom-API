@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoCom_API.Models;
@@ -116,7 +117,11 @@ namespace NoCom_API.Controllers
 
             if (profile == null) return NotFound();
 
-            return PhysicalFile(profile.Banner, "image/jpeg");
+            var result = new FileContentResult(System.IO.File.ReadAllBytes(profile.Banner), "image/jpeg");
+
+            //return PhysicalFile(profile.Banner, "image/jpeg");
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            return result;
         }
 
         // GET: api/Profile/banner/{userId}
